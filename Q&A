@@ -1,0 +1,11 @@
+微信分享给好友缩略图不显示问题
+1.检查引入的jweixin 版本
+  目前微信分享API采用JSSDK，对应js是jweixin.1.2.0-js版本，所以应用该版本的，要对应使用微信开发者说明，https://mp.weixin.qq.com/wiki
+  
+2.之前网传在<body>标签之后紧接着添加<img>或者<div><img></div>的方法，是浏览器捕捉页面第一张图来填充缩略图，但是该方法在微信6.5.4之后都不行了，因为这个本就属于微信的一个bug，现在微信修复了，当然不再有效；
+
+3.检查wx.config中的jsApiList属性，是否已全部添加需要分享的方法，如'onMenuShareTimeline','onMenuShareAppMessage','onMenuShareQQ','onMenuShareWeibo','onMenuShareQZone';是‘’单引号组成的数组，另外该处分享到的微博是指腾讯微博，不是新浪微博！
+
+4.最不可思议的影响，也是我遇到的缩略图不现实的终极原因（发现之后，觉得API太必要了）：
+  如果你是分享给好友，必须在自定义分享内容接口wx.onMenuShareAppMessage内定义属性type: '', // 分享类型,music、video或link，不填默认为link
+  type属性默认为link，也就是链接，当你的分享内容中包含其他格式时，光写link分享出去的缩略图是不会显示的；正如我这次的项目，项目内容包含music和video，但是typo选择了默认，结果就是分享到朋友圈，腾讯微博，QQ空间，QQ等都没有问题，唯独分享给好友出了问题；原因就是微信开发文档中，就‘onMenuShareAppMessage'这个接口需要定义分享类型，其他的都不需要！！！不熟悉API的，简直就是一个大坑！
